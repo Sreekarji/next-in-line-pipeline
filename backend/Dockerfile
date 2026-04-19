@@ -1,5 +1,5 @@
 # Base node image optimized for build size
-FROM node:20.12-alpine
+FROM node:22-alpine
 
 # Set the active working directory
 WORKDIR /app
@@ -7,8 +7,8 @@ WORKDIR /app
 # Load dependency definitions first for build caching
 COPY package*.json ./
 
-# Execute a clean locked installation of packages
-RUN npm ci
+# Execute install while discarding strictly windows package-lock resolution
+RUN rm -f package-lock.json && npm install
 
 # Bring in the rest of the backend source code payload
 COPY . .
