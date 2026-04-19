@@ -13,40 +13,25 @@ This pipeline seamlessly funnels applications via active locking components. Onc
 - PostgreSQL 14+
 - Docker and Docker Compose (Recommended for isolated execution)
 
-**2. Environment Variables**
-A `.env` file is required natively in the `backend/` directory. Duplicate the `.env.example` file and configure it:
-```ini
-DATABASE_URL=postgres://xcrowd_user:xcrowd_password@localhost:5432/xcrowd_pipeline
-PORT=3000
-DECAY_INTERVAL_MS=30000
-```
-*(Note: If using Docker, the `docker-compose.yml` automatically passes these variables to the backend, circumventing the need for a local `.env`).*
+**2. Complete One-Command Startup**
+We have explicitly provisioned a unified bootstrap sequence that automatically aggregates the database, containers, and data modeling scripts.
 
-**3 & 4. Starting the Database & Running Migrations**
-If using Docker, simply run:
+Run the following inside your terminal:
 ```bash
-docker-compose up -d --build
+./start.sh
 ```
-This automatically spins up a PostgreSQL container and natively executes `backend/src/db/migrations/001_init.sql` to construct the tables. *(For manual runs locally without docker, launch Postgres and run: `psql xcrowd_pipeline < backend/src/db/migrations/001_init.sql`)*.
+*Note: This command cleanly executes `docker-compose up -d --build`, provisions the native Postgres bounds, natively sleeps for initialization, and dynamically invokes `node seed.js` straight into the backend daemon.*
 
-**5. Populating Demo Data**
-Once the containers are actively running, execute the seed script to instantly generate a demo company, a job opening, and a simulated queue of cascaded applicants:
-```bash
-docker-compose exec backend node seed.js
-```
-*(The terminal will explicitly print out the generated Admin API Key, Job ID, and various Applicant test IDs for you to log in with).*
+**(The terminal will explicitly print out the generated Admin API Key, Job ID, and various Applicant test IDs for you to log in with securely).*
 
-**6 & 7. Starting the Backend and Frontend**
-If you executed `docker-compose up -d --build`, both the backend (Port 3000) and frontend (Port 5173) are already successfully running in the background! 
-*(For manual local execution without Docker: hit `npm ci && npm run dev` inside both the `backend/` and `frontend/` folders concurrently).*
-
-**8. Accessing the Application**
+**3. Accessing the Application**
 Open your browser and navigate securely to:
-👉 **http://localhost:5173**
+👉 **[http://localhost:5173](http://localhost:5173)**
 
-**9. How to Log In**
-- **As a Company:** On the homepage, select the dashboard module. Enter the `Job ID` and `Admin API Key` produced natively by your `seed.js` output to actively monitor the queue pipeline.
+**4. How to Log In & Testing Inject Payload**
+- **As a Company:** On the homepage, select the dashboard module. Skip the signup form and enter your explicitly seeded `Job ID` and `Admin API Key` into the **Returning Admin Login** block.
 - **As an Applicant:** On the homepage, select the **Candidate Portal**. Enter any `Applicant ID` provided by the seed script.
+- **Testing Inject Payloads:** Directly within the Dashboard interface, navigate to the **Inject Data** tab. Enter a test candidate name and mock email. The pipeline natively emits a unique **Generated Reference Key**. Copy this specific UUID directly into the *Candidate Portal* tab to independently monitor live position drops across entirely discrete queues simultaneously!
 
 **10. End-to-End Happy Path Walkthrough**
 1. **Create Job:** The Company opens the dashboard and creates a new opening (e.g., "Software Engineer" with capacity 1).

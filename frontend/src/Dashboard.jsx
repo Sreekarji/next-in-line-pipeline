@@ -49,7 +49,7 @@ function StepCompany({ onNext, onLogin }) {
       <p className={styles['input-label']} style={{ marginBottom: '1.5rem' }}>Monitor an existing pipeline queue.</p>
       <form onSubmit={(e) => {
         e.preventDefault();
-        onLogin({ apiKey: loginApiKey, jobId: loginJobId });
+        onLogin({ apiKey: loginApiKey.trim(), jobId: loginJobId.trim() });
       }} className={styles['input-stack']}>
         <label className={styles['input-label']}>Existing Job ID</label>
         <input className={styles['base-input']} value={loginJobId} onChange={e => setLoginJobId(e.target.value)} required />
@@ -118,7 +118,7 @@ function SystemInterface({ sessionData, terminateSession }) {
 
   const pullState = async () => {
     try {
-      const res = await fetch(`/api/jobs/${sessionData.jobId}/pipeline`, { headers: { 'x-api-key': sessionData.apiKey }});
+      const res = await fetch(`/api/jobs/${sessionData.jobId.trim()}/pipeline`, { headers: { 'x-api-key': sessionData.apiKey.trim() }});
       if (res.ok) {
         setPipelineState(await res.json());
       } else if (res.status === 401 || res.status === 404) {
@@ -141,23 +141,26 @@ function SystemInterface({ sessionData, terminateSession }) {
   const issueTestApplication = async (e) => {
     e.preventDefault();
     try {
-      const req = await fetch(`/api/jobs/${sessionData.jobId}/apply`, {
+      setApplyResp(null);
+      const req = await fetch(`/api/jobs/${sessionData.jobId.trim()}/apply`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(testForm)
       });
+      if (!req.ok) throw new Error(await req.text());
       const data = await req.json();
       setApplyResp(data);
       setTestForm({ name: '', email: '' });
       pullState();
     } catch (e) {
       console.error('Failed to submit application test payload:', e);
+      setApplyResp({ fetchError: true });
     }
   };
 
-  const dispatchStatusUpdate = async (id, status) => {
+  const dispatchStatusUpdate = async (id, reason) => {
     try {
-      await fetch(`/api/applicants/${id}/status`, {
-        method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-api-key': sessionData.apiKey },
-        body: JSON.stringify({ status })
+      await fetch(`/api/applicants/${id}/exit`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-api-key': sessionData.apiKey.trim() },
+        body: JSON.stringify({ reason })
       });
       pullState();
     } catch (e) {
@@ -278,11 +281,23 @@ function SystemInterface({ sessionData, terminateSession }) {
             <button className={styles['action-btn']} style={{ marginTop: '1rem' }}>Push Application Payload</button>
           </form>
 
-          {applyResp && (
+          {applyResp && !applyResp.fetchError && (
             <div className={`${styles['msg-alert']} ${styles['msg-ok']}`} style={{ marginTop: '1.5rem' }}>
               <strong>Insertion Success!</strong><br />
-              Generated Reference Key: <code>{applyResp.applicant.id}</code><br/>
+              Generated Reference Key:
+              <code style={{ fontSize: '1.2em', display: 'block', margin: '0.8rem 0', padding: '0.5rem', background: 'rgba(0,0,0,0.5)', borderRadius: 6, color: 'var(--primary-accent)' }}>
+                {applyResp.applicant.id}
+              </code>
               Assigned State: {applyResp.status}
+              <div style={{ marginTop: '0.5rem', fontSize: '0.9em', opacity: 0.8 }}>
+                Copy this UUID to test the live Candidate Portal!
+              </div>
+            </div>
+          )}
+          {applyResp && applyResp.fetchError && (
+            <div className={`${styles['msg-alert']} ${styles['msg-err']}`} style={{ marginTop: '1.5rem' }}>
+              <strong>Execution Failed</strong><br />
+              Could not inject test candidate. Verify backend connectivity.
             </div>
           )}
         </section>
