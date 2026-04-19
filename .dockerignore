@@ -1,0 +1,19 @@
+# Skip module caches
+node_modules/
+node_modules
+
+# Skip environment settings
+.env
+.env.local
+
+# Skip logs
+*.log
+npm-debug.log*
+
+# Skip git history
+.git/
+.gitignore
+
+# Application specs
+Dockerfile
+.dockerignore

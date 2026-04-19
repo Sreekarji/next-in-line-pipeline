@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* Organic Custom System Palette */
+:root {
+  --canvas-bg: #0b1120;
+  --surface-blur: rgba(17, 24, 39, 0.65);
+  --core-text: #f1f5f9;
+  --sub-text: #94a3b8;
+  --primary-accent: #3b82f6;
+  --primary-accent-hover: #2563eb;
+  --panel-border: rgba(255, 255, 255, 0.08);
+  
+  --token-active: #10b981;
+  --token-waitlist: #f59e0b;
+  --token-pending: #8b5cf6;
+  --token-error: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Outfit', sans-serif;
+}
+
+body {
+  background-color: var(--canvas-bg);
+  background-image: 
+    radial-gradient(ellipse at top left, rgba(59, 130, 246, 0.12) 0%, transparent 45%),
+    radial-gradient(ellipse at bottom right, rgba(139, 92, 246, 0.12) 0%, transparent 45%);
+  color: var(--core-text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+

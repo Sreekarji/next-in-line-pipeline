@@ -1,0 +1,93 @@
+Submission Guidelines
+Format
+• All code, documentation, and assets must be in a public GitHub repository.
+• No other forms of submission (ZIP files, email, forms) are accepted.
+Repository Requirements
+README.md:
+• What your project does
+• How to set it up and run
+• Key features and highlights
+• Anything else the challenge asks for
+Deadlines & Commit Policy
+• You can submit your solution at any time before the deadline.
+• You are allowed to make changes to your repository even after submission. However,
+once the deadline passes, only the commit history up to the last commit made before
+the deadline will be considered for evaluation.
+Important: What Not to Do
+• Directly forking or cloning code from existing open-source or other participants’
+repositories will lead to automatic rejection.
+• Private repositories will be rejected, your repo must remain public at all times
+How We Evaluate Your Work
+After the submission deadline, your submissions are processed through XVal, our proprietary
+validation engine, across three core dimensions:
+• What You Built (Code Quality)
+Requirements coverage, architecture, readability, error handling, testing, and overall
+design quality.
+• How You Built It (Development Process)
+Commit history is analysed to understand iteration depth, consistency, and real
+development effort.
+• How You Used AI (AI Collaboration)
+Measures how effectively you guided AI: customization, case handling, and
+refinement of generated code.
+Feedback Process
+• Whether accepted or rejected, you will be receiving the entire report so that you
+understand where you can improve.
+Next In Line: Build a Hiring Pipeline That Moves Itself
+
+Backend Engineering
+
+Queue Systems
+
+API Design
+
+Database Design
+
+Concurrency
+
+Challenge Description
+
+Small engineering teams can't afford Greenhouse or Lever (ATS platforms). They're managing hiring pipelines on spreadsheets, losing track of applicants, and manually chasing people who stopped responding two weeks ago.
+
+The Challenge: Build a lightweight internal tool that manages a job application pipeline without a spreadsheet. Companies define how many applicants they actively review at once. Everything beyond that waits. When someone exits the pipeline, the waitlist moves automatically, so no manual intervention.
+
+One focused system. Built to actually run inside a small team.
+
+Requirements
+
+Core:
+
+1. Company creates a job opening with a defined active capacity
+
+2. Applications beyond capacity enter a waitlist but not a rejection
+
+3. When an active applicant exits for any reason, the next waitlisted applicant promotes automatically
+
+4. Applicant can check their current status and queue position
+
+5. Handle the case where two applications arrive at the same time for the last available spot and document your approach in the README
+
+6. All state transitions must be logged. Every movement through the pipeline must be traceable and reconstructable
+
+7. Inactivity Decay: When a waitlisted applicant gets promoted to active, they have a defined window to acknowledge. If they don't respond within that window, they don't get removed. They decay back into the waitlist at a penalized position. The next person promotes. The cascade continues without anyone touching it manually. You decide the decay window. You decide how penalized repositioning works. You decide how the cascade triggers
+
+Frontend:
+
+This is backend-heavy by design. The frontend is minimal. A company dashboard showing pipeline state and an applicant view showing current status and position. The system does not need to be real-time. How and when the frontend reflects state changes is your decision but your choice must be deliberate and documented.
+
+Technical:
+
+1. PERN (PostgreSQL, Express, React, Node.js) or MERN (MongoDB, Express, React, Node.js)
+
+2. No third-party queue, waitlist, or job scheduling libraries — core logic must be yours
+
+3. Fully runnable locally
+
+4. API must be documented: every endpoint, inputs and outputs defined
+
+Deliverables:
+
+1. Public GitHub repository
+
+2. Functional application with clear setup instructions
+
+3. README covering architectural decisions, tradeoffs made, and what you'd change with more time
