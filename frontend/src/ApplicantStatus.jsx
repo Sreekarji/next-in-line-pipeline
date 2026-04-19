@@ -3,12 +3,12 @@ import styles from './ApplicantStatus.module.css';
 
 // Maps statuses to display content and colored UI pills
 const presentationConfig = {
-  ACTIVE:     { pill: 'pill-active',   title: 'Session Active',       desc: 'Your application is actively being processed.' },
-  PENDING_ACKNOWLEDGEMENT: { pill: 'pill-pending', title: 'Pending Confirmation', desc: 'Promoted! Confirm your slot now.' },
-  WAITLIST:   { pill: 'pill-waitlist', title: 'Currently Waitlisted', desc: 'Awaiting capacity.' },
-  HIRED:      { pill: 'pill-active',   title: 'Hired!',               desc: 'Congratulations on joining the team.' },
-  REJECTED:   { pill: 'pill-error',    title: 'Not Selected',         desc: 'Thank you for your interest.' },
-  WITHDRAWN:  { pill: 'pill-error',    title: 'Withdrawn',            desc: 'Application has been withdrawn.' }
+  ACTIVE:     { pill: styles['pill-active'],   title: 'Session Active',       desc: 'Your application is actively being processed.' },
+  PENDING_ACKNOWLEDGEMENT: { pill: styles['pill-pending'], title: 'Pending Confirmation', desc: 'Promoted! Confirm your slot now.' },
+  WAITLIST:   { pill: styles['pill-waitlist'], title: 'Currently Waitlisted', desc: 'Awaiting capacity.' },
+  HIRED:      { pill: styles['pill-active'],   title: 'Hired!',               desc: 'Congratulations on joining the team.' },
+  REJECTED:   { pill: styles['pill-error'],    title: 'Not Selected',         desc: 'Thank you for your interest.' },
+  WITHDRAWN:  { pill: styles['pill-error'],    title: 'Withdrawn',            desc: 'Application has been withdrawn.' }
 };
 
 export default function CandidatePortal() {
@@ -24,6 +24,14 @@ export default function CandidatePortal() {
 
   const fetchCandidateStatus = async (idToFetch, showLoad = true) => {
     if (!idToFetch) return;
+    
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(idToFetch)) {
+      setSysError('Invalid ID format. Please enter a valid Applicant UUID.');
+      setPipelineData(null);
+      return;
+    }
+
     if (showLoad) setIsSyncing(true);
     setSysError(null);
     setAckConfirmed(false);

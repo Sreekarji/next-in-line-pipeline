@@ -44,6 +44,11 @@ router.get('/:id/status', async (req, res, next) => {
   try {
     const { id } = req.params;
     
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return res.status(400).json({ error: 'Invalid UUID format for applicant ID.' });
+    }
+    
     const appRes = await query('SELECT * FROM applicants WHERE id = $1', [id]);
     if (appRes.rows.length === 0) return res.status(404).json({ error: 'Applicant not found' });
     const applicant = appRes.rows[0];
