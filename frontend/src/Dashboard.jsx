@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Dashboard.module.css';
 
-function StepCompany({ onNext }) {
+function StepCompany({ onNext, onLogin }) {
+  // Provisioning state
   const [vendorName, setVendorName] = useState('');
   const [loadState, setLoadState] = useState(false);
   const [err, setErr] = useState('');
+  
+  // Login state
+  const [loginJobId, setLoginJobId] = useState('');
+  const [loginApiKey, setLoginApiKey] = useState('');
 
   const submitCompany = async (e) => {
     e.preventDefault();
@@ -35,6 +40,23 @@ function StepCompany({ onNext }) {
         {err && <div className={`${styles['msg-alert']} ${styles['msg-err']}`}>{err}</div>}
         <button className={styles['action-btn']} disabled={loadState} style={{ marginTop: '0.5rem' }}>
           {loadState ? 'Provisioning...' : 'Provision Workspace'}
+        </button>
+      </form>
+
+      <hr style={{ border: 'none', borderTop: '1px solid var(--panel-border)', margin: '2.5rem 0' }} />
+      
+      <h2>Returning Admin Login</h2>
+      <p className={styles['input-label']} style={{ marginBottom: '1.5rem' }}>Monitor an existing pipeline queue.</p>
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        onLogin({ apiKey: loginApiKey, jobId: loginJobId });
+      }} className={styles['input-stack']}>
+        <label className={styles['input-label']}>Existing Job ID</label>
+        <input className={styles['base-input']} value={loginJobId} onChange={e => setLoginJobId(e.target.value)} required />
+        <label className={styles['input-label']} style={{ marginTop: '0.5rem' }}>Admin API Key</label>
+        <input className={styles['base-input']} type="password" value={loginApiKey} onChange={e => setLoginApiKey(e.target.value)} required />
+        <button className={styles['action-btn']} style={{ marginTop: '0.5rem', background: 'transparent', border: '1px solid var(--primary-accent)' }}>
+          Access Workspace
         </button>
       </form>
     </article>
@@ -96,7 +118,7 @@ function SystemInterface({ sessionData, terminateSession }) {
 
   const pullState = async () => {
     try {
-      const res = await fetch(`/api/jobs/${sessionData.jobId}/status`, { headers: { 'x-api-key': sessionData.apiKey }});
+      const res = await fetch(`/api/jobs/${sessionData.jobId}/pipeline`, { headers: { 'x-api-key': sessionData.apiKey }});
       if (res.ok) setPipelineState(await res.json());
     } catch (e) { console.error('Failed state poll'); }
   };
@@ -156,7 +178,7 @@ function SystemInterface({ sessionData, terminateSession }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--panel-border)' }}>
             <div>
               <p className={styles['input-label']}>Active Capacity Utilization</p>
-              <h1 style={{ color: 'var(--primary-accent)' }}>{pipelineState.active.length} / {pipelineState.capacity}</h1>
+              <h1 style={{ color: 'var(--primary-accent)' }}>{pipelineState.active.length} / {pipelineState.job.active_capacity}</h1>
             </div>
           </div>
           
@@ -258,7 +280,10 @@ export default function WorkspaceDirector() {
   const endSession = () => { localStorage.removeItem('__org_session'); setSession(null); setFlowPosition('company'); };
 
   if (flowPosition === 'connect') return null;
-  if (flowPosition === 'company') return <StepCompany onNext={s => { setSession(s); setFlowPosition('job'); }} />;
+  if (flowPosition === 'company') return <StepCompany 
+    onNext={s => { setSession(s); setFlowPosition('job'); }} 
+    onLogin={s => { localStorage.setItem('__org_session', JSON.stringify(s)); setSession(s); setFlowPosition('operational'); }}
+  />;
   if (flowPosition === 'job') return <StepJob companyName={session.companyName} apiKey={session.apiKey} onFinish={j => { const all = { ...session, ...j }; localStorage.setItem('__org_session', JSON.stringify(all)); setSession(all); setFlowPosition('operational'); }} />;
   
   return <SystemInterface sessionData={session} terminateSession={endSession} />;
