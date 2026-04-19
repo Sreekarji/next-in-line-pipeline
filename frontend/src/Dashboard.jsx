@@ -119,8 +119,17 @@ function SystemInterface({ sessionData, terminateSession }) {
   const pullState = async () => {
     try {
       const res = await fetch(`/api/jobs/${sessionData.jobId}/pipeline`, { headers: { 'x-api-key': sessionData.apiKey }});
-      if (res.ok) setPipelineState(await res.json());
-    } catch (e) { console.error('Failed state poll'); }
+      if (res.ok) {
+        setPipelineState(await res.json());
+      } else if (res.status === 401 || res.status === 404) {
+        terminateSession();
+      } else {
+        setPipelineState({ fetchError: true, status: res.status });
+      }
+    } catch (e) { 
+      console.error('Failed state poll', e); 
+      setPipelineState({ fetchError: true, networkError: true });
+    }
   };
 
   useEffect(() => {
@@ -156,7 +165,29 @@ function SystemInterface({ sessionData, terminateSession }) {
     }
   };
 
-  if (!pipelineState) return <div style={{ textAlign: 'center', marginTop: '3rem' }}>Warming up pipeline connections...</div>;
+  if (!pipelineState) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: '3rem' }} className={styles['anim-slide']}>
+        <div style={{ marginBottom: '1rem' }}>Warming up pipeline connections...</div>
+        <button onClick={terminateSession} className={styles['action-btn']} style={{ background: 'transparent', border: '1px solid var(--panel-border)', color: 'var(--sub-text)' }}>
+          Abort Session
+        </button>
+      </div>
+    );
+  }
+
+  if (pipelineState.fetchError) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: '3rem' }} className={styles['anim-slide']}>
+        <div className={styles['msg-alert']} style={{ marginBottom: '1rem' }}>
+          Connection error to pipeline. The backend may be offline or unreachable.
+        </div>
+        <button onClick={terminateSession} className={styles['action-btn']} style={{ background: 'transparent', border: '1px solid var(--panel-border)', color: 'var(--sub-text)' }}>
+          Abort Session
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={styles['anim-slide']}>
